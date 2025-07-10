@@ -1,6 +1,7 @@
+// TeacherDashboard.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InfoCard from "./InfoCard";
 import ContactInfo from "./ContactInfo";
 import AvailabilityGrid from "./AvailabilityGrid";
@@ -19,49 +20,65 @@ const tabs = [
   "History",
 ];
 
-const mockAvailability: DayAvailability[] = [
-  { day: "Monday", slots: Array(20).fill({ time: "", available: false }) },
-  {
-    day: "Tuesday",
-    slots: Array(20)
-      .fill({ time: "", available: false })
-      .map((_, i) => ({ time: "", available: i === 13 })),
-  },
-  { day: "Wednesday", slots: Array(20).fill({ time: "", available: false }) },
-  {
-    day: "Thursday",
-    slots: Array(20)
-      .fill({ time: "", available: false })
-      .map((_, i) => ({ time: "", available: i === 15 })),
-  },
-  { day: "Friday", slots: Array(20).fill({ time: "", available: false }) },
-  { day: "Saturday", slots: Array(20).fill({ time: "", available: false }) },
-  { day: "Sunday", slots: Array(20).fill({ time: "", available: false }) },
-];
+const defaultDetails = {
+  name: "Alynia Allan",
+  role: "Teacher",
+  birthDate: "Jan 10, 1980",
+};
 
 export default function TeacherDashboard() {
   const [activeTab, setActiveTab] = useState("Availability");
+  const [details, setDetails] = useState(defaultDetails);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("teacherDetails");
+    if (stored) {
+      setDetails(JSON.parse(stored));
+    }
+  }, []);
+
+  const handleSaveDetails = (updated: typeof defaultDetails) => {
+    setDetails(updated);
+    localStorage.setItem("teacherDetails", JSON.stringify(updated));
+  };
+
+  const mockAvailability: DayAvailability[] = [
+    { day: "Monday", slots: Array(20).fill({ time: "", available: false }) },
+    {
+      day: "Tuesday",
+      slots: Array(20)
+        .fill({ time: "", available: false })
+        .map((_, i) => ({ time: "", available: i === 13 })),
+    },
+    { day: "Wednesday", slots: Array(20).fill({ time: "", available: false }) },
+    {
+      day: "Thursday",
+      slots: Array(20)
+        .fill({ time: "", available: false })
+        .map((_, i) => ({ time: "", available: i === 15 })),
+    },
+    { day: "Friday", slots: Array(20).fill({ time: "", available: false }) },
+    { day: "Saturday", slots: Array(20).fill({ time: "", available: false }) },
+    { day: "Sunday", slots: Array(20).fill({ time: "", available: false }) },
+  ];
 
   return (
     <div className="pb-12 space-y-8 px-2 sm:px-4">
-      {/* Name */}
       <h2 className="text-sm text-gray-600 pt-4">
-        <span className="text-blue-600">Teachers</span> / Alynia Allan 👤
+        <span className="text-blue-600">Teachers</span> / {details.name} 👤
       </h2>
 
-      {/* Teacher Info Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <InfoCard title="Details" editable>
-          <p>
-            <strong>Name:</strong> Alynia Allan
-          </p>
-          <p>
-            <strong>Role:</strong> Teacher
-          </p>
-          <p>
-            <strong>Birth Date:</strong> Jan 10, 1980
-          </p>
-        </InfoCard>
+        <InfoCard
+          title="Details"
+          editable
+          fields={[
+            { label: "Name", key: "name", value: details.name },
+            { label: "Role", key: "role", value: details.role },
+            { label: "Birth Date", key: "birthDate", value: details.birthDate },
+          ]}
+          onSave={handleSaveDetails}
+        />
 
         <ContactInfo
           type="Email"
@@ -107,7 +124,6 @@ export default function TeacherDashboard() {
         </InfoCard>
       </div>
 
-      {/* Tab Bar */}
       <div className="w-full overflow-x-auto border-b bg-white shadow-sm">
         <div className="flex whitespace-nowrap px-2 sm:px-0 space-x-4 text-sm font-medium">
           {tabs.map((tab) => (
@@ -127,14 +143,10 @@ export default function TeacherDashboard() {
         </div>
       </div>
 
-      {/* Tab Content */}
       <div>
         {activeTab === "Availability" && (
-          <>
-            <AvailabilityGrid data={mockAvailability} />
-          </>
+          <AvailabilityGrid data={mockAvailability} />
         )}
-
         {activeTab !== "Availability" && (
           <div className="text-gray-500 italic text-sm mt-4">
             {activeTab} content not implemented yet.
