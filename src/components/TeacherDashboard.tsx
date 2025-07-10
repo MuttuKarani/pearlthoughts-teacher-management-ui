@@ -68,60 +68,72 @@ export default function TeacherDashboard() {
         <span className="text-blue-600">Teachers</span> / {details.name} 👤
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <InfoCard
-          title="Details"
-          editable
-          fields={[
-            { label: "Name", key: "name", value: details.name },
-            { label: "Role", key: "role", value: details.role },
-            { label: "Birth Date", key: "birthDate", value: details.birthDate },
-          ]}
-          onSave={handleSaveDetails}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Left Column */}
+        <div className="space-y-4">
+          <InfoCard
+            title="Details"
+            editable
+            fields={[
+              { label: "Name", key: "name", value: details.name },
+              { label: "Role", key: "role", value: details.role },
+              {
+                label: "Birth Date",
+                key: "birthDate",
+                value: details.birthDate,
+              },
+            ]}
+            onSave={handleSaveDetails}
+          />
 
-        <ContactInfo
-          type="Email"
-          label="Work"
-          value="alyniaallan@example.com"
-        />
-        <ContactInfo type="Phone" label="Home" value="(416) 648-9057" />
-        <ContactInfo
-          type="Addresses"
-          label="Home"
-          value={`56 Odosardo Di Santo Cir\nNorth York, Ontario\nCanada`}
-        />
-
-        <InfoCard title="Private Qualifications" addable>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left border-b">
-                <th>Name</th>
-                <th>Rate ($/hr)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                ["Vocal Contemporary", "$28.00"],
-                ["Vocal Core", "$28.00"],
-                ["Vocal Hybrid", "$28.00"],
-                ["Vocal Plus", "$28.00"],
-                ["Instrument", "$28.00"],
-              ].map(([name, rate]) => (
-                <tr key={name}>
-                  <td>{name}</td>
-                  <td>{rate}</td>
+          <InfoCard title="Private Qualifications" addable>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left border-b">
+                  <th>Name</th>
+                  <th>Rate ($/hr)</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </InfoCard>
+              </thead>
+              <tbody>
+                {[
+                  ["Vocal Contemporary", "$28.00"],
+                  ["Vocal Core", "$28.00"],
+                  ["Vocal Hybrid", "$28.00"],
+                  ["Vocal Plus", "$28.00"],
+                  ["Instrument", "$28.00"],
+                ].map(([name, rate]) => (
+                  <tr key={name}>
+                    <td>{name}</td>
+                    <td>{rate}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </InfoCard>
+        </div>
 
-        <InfoCard title="Group Qualifications" addable>
-          <p className="text-sm text-gray-500">
-            No group qualifications listed.
-          </p>
-        </InfoCard>
+        {/* Right Column */}
+        <div className="space-y-4">
+          <ContactInfo
+            type="Email"
+            label="Work"
+            value="alyniaallan@example.com"
+          />
+          <ContactInfo type="Phone" label="Home" value="(416) 648-9057" />
+          <ContactInfo
+            type="Addresses"
+            label="Home"
+            value={`56 Odosardo Di Santo Cir\nNorth York, Ontario\nCanada`}
+          />
+        </div>
+
+        <div className="md:col-span-1 max-w-[30rem]">
+          <InfoCard title="Group Qualifications" addable>
+            <p className="text-sm text-gray-500">
+              No group qualifications listed.
+            </p>
+          </InfoCard>
+        </div>
       </div>
 
       <div className="w-full overflow-x-auto border-b bg-white shadow-sm">
