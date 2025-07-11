@@ -4,6 +4,7 @@ import { TeacherInfo } from "@/types/teacher";
 import InfoCard from "./InfoCard";
 import ContactInfo from "./ContactInfo";
 import AvailabilityGrid from "./AvailabilityGrid";
+import { FaUser, FaSearch } from "react-icons/fa";
 import clsx from "clsx";
 
 interface TeacherDashboardProps {
@@ -25,6 +26,8 @@ const tabs = [
 export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
   const [teacherData, setTeacherData] = useState(teacher);
   const [activeTab, setActiveTab] = useState("Availability");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredTeacherData, setFilteredTeacherData] = useState(teacher);
 
   const [privateQualifications, setPrivateQualifications] = useState([
     ["Vocal Contemporary", "$28.00"],
@@ -40,12 +43,26 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
     "Musical Theatre Group",
   ]);
 
-  // Handle slot toggle (change availability)
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value;
+    setSearchQuery(query);
+
+    if (query) {
+      setFilteredTeacherData({
+        ...teacher,
+        name: teacher.name.toLowerCase().includes(query.toLowerCase())
+          ? teacher.name
+          : "",
+      });
+    } else {
+      setFilteredTeacherData(teacher);
+    }
+  };
+
   const handleSlotToggle = (dayIndex: number, timeSlot: string) => {
     setTeacherData((prevTeacherData) => {
       const updatedAvailability = [...prevTeacherData.availability];
       const day = updatedAvailability[dayIndex];
-
       const slotIndex = day.slots.findIndex((slot) => slot.time === timeSlot);
       if (slotIndex !== -1) {
         day.slots[slotIndex].available = !day.slots[slotIndex].available;
@@ -73,28 +90,38 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
     qualification: string,
     rate: string
   ) => {
-    setPrivateQualifications((prevQualifications) => [
-      ...prevQualifications,
-      [qualification, rate],
-    ]);
+    setPrivateQualifications((prev) => [...prev, [qualification, rate]]);
   };
 
   const handleAddGroupQualification = (qualification: string) => {
-    setGroupQualifications((prevGroupQualifications) => [
-      ...prevGroupQualifications,
-      qualification,
-    ]);
+    setGroupQualifications((prev) => [...prev, qualification]);
   };
 
   return (
-    <div className="pb-12 space-y-8 px-2 sm:px-4">
-      {/* Teacher Name in the Header */}
-      <h2 className="text-sm text-gray-600 pt-4">
-        <span className="text-blue-600">Teachers</span> / {teacherData.name} 👤
-      </h2>
+    <div className="pb-12 px-2 sm:px-4 space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm text-gray-600 pt-4 flex items-center">
+          <span className="text-blue-600">Teachers</span> /{" "}
+          <span>{teacherData.name}</span>
+          <FaUser className="ml-2 text-blue-600" />
+        </h2>
 
-      {/* Teacher Info Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Search */}
+        <div className="relative flex items-center">
+          <input
+            type="text"
+            placeholder="Search teachers..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="p-2 pl-10 rounded-lg border border-gray-300 focus:outline-none"
+          />
+          <FaSearch className="absolute left-3 text-gray-400" />
+        </div>
+      </div>
+
+      {/* Grid Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
         <div className="space-y-4">
           <InfoCard
             title="Details"
@@ -171,7 +198,7 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
           <ContactInfo
             type="Addresses"
             label="Home"
-            value="56 Odosardo Di Santo Cir\nNorth York, Ontario\nCanada"
+            value={`56 Odosardo Di Santo Cir\nNorth York, Ontario\nCanada`}
           />
         </div>
       </div>
@@ -196,7 +223,6 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
         </div>
       </div>
 
-      {/* Render content based on active tab */}
       <div>
         {activeTab === "Availability" ? (
           <AvailabilityGrid

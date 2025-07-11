@@ -24,16 +24,19 @@ export default function LayoutShell({
 
   return (
     <div className="flex h-screen overflow-hidden">
+      {/* Sidebar */}
       <div
-        className={`fixed top-12 left-0 z-40 h-[calc(100vh-3rem)] transition-all duration-300 bg-gray-800 text-white ${
-          showSidebar ? "w-64" : "w-0 overflow-hidden"
-        } md:static md:w-64`}
+        className={`transition-all duration-300 bg-gray-800 text-white ${
+          showSidebar ? "w-48" : "w-0 overflow-hidden"
+        }`}
       >
         <SideBar isOpen={showSidebar} />
       </div>
 
+      {/* Right-side content */}
       <div className="flex flex-col flex-1 w-full">
         <TopBar onToggleSidebar={() => setShowSidebar((prev) => !prev)} />
+
         <main
           className={`flex-1 overflow-y-auto bg-gray-50 p-4 pt-16 ${
             isMobile && showSidebar ? "pointer-events-none opacity-30" : ""
