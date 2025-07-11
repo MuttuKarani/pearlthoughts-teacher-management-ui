@@ -30,9 +30,14 @@ const AvailabilityGrid = ({ data, onSlotToggle }: AvailabilityGridProps) => {
     "4:30 PM",
   ];
 
+  if (!data) {
+    return <div>Loading availability...</div>;
+  }
+
   return (
-    <div className="overflow-x-auto w-full border rounded-lg shadow-sm bg-white">
-      <div className="inline-grid grid-cols-[80px_repeat(7,_1fr)] sm:grid-cols-[80px_repeat(7,_1fr)] md:grid-cols-[100px_repeat(7,_1fr)] text-xs">
+    <div className="overflow-x-auto w-full max-w-[800px] md:max-w-[1200px] shadow-sm bg-white">
+      {/* Grid layout */}
+      <div className="inline-grid grid-cols-[80px_repeat(7,_1fr)] sm:grid-cols-[80px_repeat(7,_1fr)] md:grid-cols-[120px_repeat(7,_1fr)] lg:grid-cols-[140px_repeat(7,_1fr)] text-xs gap-0">
         {/* Time Column */}
         <div className="sticky left-0 bg-white z-10 border-r">
           <div className="h-12 border-b"></div>
@@ -44,7 +49,7 @@ const AvailabilityGrid = ({ data, onSlotToggle }: AvailabilityGridProps) => {
         </div>
 
         {/* Days Columns */}
-        {data.map((day, dayIdx) => (
+        {data?.map((day, dayIdx) => (
           <div key={dayIdx} className="border-l last:border-r">
             <div className="h-12 bg-gray-100 flex items-center justify-center text-xs font-semibold sm:w-20 md:w-32 lg:w-40">
               {day.day}
