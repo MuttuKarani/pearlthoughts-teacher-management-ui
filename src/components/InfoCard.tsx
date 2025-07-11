@@ -1,4 +1,3 @@
-// InfoCard.tsx
 "use client";
 
 import { Pencil, Plus, X, Check } from "lucide-react";
