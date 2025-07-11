@@ -1,7 +1,7 @@
-// src/app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
 import LayoutShell from "@/components/LayoutShell";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Teacher Management",
@@ -17,6 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <LayoutShell>{children}</LayoutShell>
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

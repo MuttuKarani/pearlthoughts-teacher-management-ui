@@ -1,15 +1,49 @@
-import { DayAvailability } from "@/types/availability";
-import TimeSlot from "./TimeSlot";
+import { DayAvailability, TimeSlot as Slot } from "@/types/availability";
 
-const DayColumn = ({ day }: { day: DayAvailability }) => (
-  <div className="flex flex-col border-l min-w-[100px]">
-    <div className="h-12 flex items-center justify-center font-medium bg-gray-50 border-b">
-      {day.day}
+interface DayColumnProps {
+  day: DayAvailability;
+  dayIndex: number;
+  onSlotToggle: (dayIndex: number, slotIndex: number) => void;
+  onTimeEdit: (dayIndex: number, slotIndex: number, newTime: string) => void;
+}
+
+const DayColumn = ({
+  day,
+  dayIndex,
+  onSlotToggle,
+  onTimeEdit,
+}: DayColumnProps) => {
+  const handleTimeChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    slotIndex: number
+  ) => {
+    onTimeEdit(dayIndex, slotIndex, e.target.value);
+  };
+
+  return (
+    <div className="border-l last:border-r">
+      <div className="h-12 bg-gray-100 flex items-center justify-center text-xs font-semibold">
+        {day.day}
+      </div>
+      {day.slots.map((slot, slotIndex) => {
+        return (
+          <div key={slotIndex} className="flex items-center h-12 border-b">
+            {/* Time */}
+            <div className="w-20 text-right pr-2">{slot.time || "-"}</div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={slot.available}
+                onChange={() => onSlotToggle(dayIndex, slotIndex)}
+                className="form-checkbox h-4 w-4 text-green-600"
+              />
+            </div>
+          </div>
+        );
+      })}
     </div>
-    {day.slots.map((slot, i) => (
-      <TimeSlot key={i} slot={slot} />
-    ))}
-  </div>
-);
+  );
+};
 
 export default DayColumn;
