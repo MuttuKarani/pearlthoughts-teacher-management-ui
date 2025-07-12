@@ -1,5 +1,4 @@
-import { DayAvailability, TimeSlot } from "@/types/availability";
-import { useState } from "react";
+import { DayAvailability } from "@/types/availability";
 
 interface AvailabilityGridProps {
   data: DayAvailability[];

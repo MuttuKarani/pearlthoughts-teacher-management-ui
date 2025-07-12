@@ -1,4 +1,4 @@
-import { DayAvailability, TimeSlot as Slot } from "@/types/availability";
+import { DayAvailability } from "@/types/availability";
 
 interface DayColumnProps {
   day: DayAvailability;
@@ -7,18 +7,13 @@ interface DayColumnProps {
   onTimeEdit: (dayIndex: number, slotIndex: number, newTime: string) => void;
 }
 
-const DayColumn = ({
-  day,
-  dayIndex,
-  onSlotToggle,
-  onTimeEdit,
-}: DayColumnProps) => {
-  const handleTimeChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    slotIndex: number
-  ) => {
-    onTimeEdit(dayIndex, slotIndex, e.target.value);
-  };
+const DayColumn = ({ day, dayIndex, onSlotToggle }: DayColumnProps) => {
+  // const handleTimeChange = (
+  //   e: React.ChangeEvent<HTMLInputElement>,
+  //   slotIndex: number
+  // ) => {
+  //   onTimeEdit(dayIndex, slotIndex, e.target.value);
+  // };
 
   return (
     <div className="border-l last:border-r">

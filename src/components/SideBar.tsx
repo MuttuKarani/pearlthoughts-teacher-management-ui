@@ -18,7 +18,6 @@ const teachers = [
 function NavItem({
   icon,
   label,
-  to,
 }: {
   icon: React.ReactNode;
   label: string;

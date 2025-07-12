@@ -1,4 +1,3 @@
-import TeacherDashboard from "@/components/TeacherDashboard";
 import { teachers } from "@/data/teachers";
 import Link from "next/link";
 

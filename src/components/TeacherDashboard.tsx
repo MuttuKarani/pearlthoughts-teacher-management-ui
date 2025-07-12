@@ -27,7 +27,6 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
   const [teacherData, setTeacherData] = useState(teacher);
   const [activeTab, setActiveTab] = useState("Availability");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredTeacherData, setFilteredTeacherData] = useState(teacher);
 
   const [privateQualifications, setPrivateQualifications] = useState([
     ["Vocal Contemporary", "$28.00"],
@@ -46,17 +45,6 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setSearchQuery(query);
-
-    if (query) {
-      setFilteredTeacherData({
-        ...teacher,
-        name: teacher.name.toLowerCase().includes(query.toLowerCase())
-          ? teacher.name
-          : "",
-      });
-    } else {
-      setFilteredTeacherData(teacher);
-    }
   };
 
   const handleSlotToggle = (dayIndex: number, timeSlot: string) => {
@@ -81,7 +69,11 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
     }
   }, []);
 
-  const handleSaveDetails = (updatedDetails: typeof teacherData) => {
+  const handleSaveDetails = (updated: Partial<TeacherInfo>) => {
+    const updatedDetails = {
+      ...teacherData,
+      ...updated,
+    };
     setTeacherData(updatedDetails);
     localStorage.setItem("teacherDetails", JSON.stringify(updatedDetails));
   };

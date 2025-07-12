@@ -3,6 +3,7 @@
 import { Pencil, Plus, X, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { TeacherInfo } from "@/types/teacher";
 
 type Props = {
   title: string;
@@ -15,7 +16,7 @@ type Props = {
     type?: "text" | "email" | "tel";
     value: string;
   }[];
-  onSave?: (updated: Record<string, string>) => void;
+  onSave?: (updated: Partial<TeacherInfo>) => void;
 };
 
 export default function InfoCard({
