@@ -53,23 +53,21 @@ const AvailabilityGrid: React.FC<AvailabilityGridProps> = ({
             <tr key={time}>
               <td className="p-2 text-sm text-gray-600">{time}</td>
               {data.map((day, dayIndex) => {
-                // Find the slot for the current day and time
                 const slot = day.slots.find((slot) => slot.time === time);
                 const isAvailable = slot ? slot.available : false;
 
                 return (
                   <td key={day.day} className="p-1">
                     <button
-                      onClick={() => onSlotToggle(dayIndex, time)} // Toggle availability on click
+                      onClick={() => onSlotToggle(dayIndex, time)}
                       className={clsx(
                         "w-full h-10 text-sm font-medium rounded-md transition-colors duration-200",
                         isAvailable
-                          ? "bg-green-500 text-white hover:bg-green-600" // Available
-                          : "bg-gray-300 text-gray-500 hover:bg-gray-400" // Unavailable
+                          ? "bg-green-500 text-white hover:bg-green-600"
+                          : "bg-gray-300 text-gray-500 hover:bg-gray-400"
                       )}
                     >
-                      {isAvailable ? "Available" : "Unavailable"}{" "}
-                      {/* Toggle text */}
+                      {isAvailable ? "Available" : "Unavailable"}
                     </button>
                   </td>
                 );
