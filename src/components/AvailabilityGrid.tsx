@@ -1,76 +1,82 @@
-import { DayAvailability } from "@/types/availability";
+import React from "react";
+
+interface AvailabilitySlot {
+  time: string;
+  available: boolean;
+}
+
+interface DayAvailability {
+  day: string;
+  slots: AvailabilitySlot[];
+}
 
 interface AvailabilityGridProps {
   data: DayAvailability[];
-  onSlotToggle: (dayIndex: number, timeSlot: string) => void;
+  onSlotToggle: (dayIndex: number, time: string) => void;
 }
 
-const AvailabilityGrid = ({ data, onSlotToggle }: AvailabilityGridProps) => {
-  const allTimes = [
-    "7:00 AM",
-    "7:30 AM",
-    "8:00 AM",
-    "8:30 AM",
-    "9:00 AM",
-    "9:30 AM",
-    "10:00 AM",
-    "10:30 AM",
-    "11:00 AM",
-    "11:30 AM",
-    "12:00 PM",
-    "12:30 PM",
-    "1:00 PM",
-    "1:30 PM",
-    "2:00 PM",
-    "2:30 PM",
-    "3:00 PM",
-    "3:30 PM",
-    "4:00 PM",
-    "4:30 PM",
-  ];
+const times = [
+  "08:00",
+  "09:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "13:00",
+  "14:00",
+  "15:00",
+  "16:00",
+  "17:00",
+  "18:00",
+  "19:00",
+];
 
-  if (!data) {
-    return <div>Loading availability...</div>;
-  }
-
+const AvailabilityGrid: React.FC<AvailabilityGridProps> = ({
+  data,
+  onSlotToggle,
+}) => {
   return (
-    <div className="overflow-x-auto w-full max-w-[700px] md:max-w-[900px] shadow-sm bg-white">
-      {/* Grid layout */}
-      <div className="inline-grid grid-cols-[60px_repeat(7,_1fr)] sm:grid-cols-[60px_repeat(7,_1fr)] md:grid-cols-[60px_repeat(7,_1fr)] lg:grid-cols-[60px_repeat(7,_1fr)] text-xs gap-0">
-        {/* Time Column */}
-        <div className="sticky left-0 bg-white z-10 border-r">
-          <div className="h-12 border-b"></div>
-          {allTimes.map((time, idx) => (
-            <div key={idx} className="h-12 text-right pr-1 border-b">
-              {time}
-            </div>
+    <div className="overflow-x-auto">
+      <table className="table-auto border-collapse w-full">
+        <thead>
+          <tr>
+            <th className="p-2 text-left">Time</th>
+            {data.map((day) => (
+              <th key={day.day} className="p-2 text-left">
+                {day.day}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {times.map((time) => (
+            <tr key={time}>
+              <td className="p-2 text-sm text-gray-600">{time}</td>
+              {data.map((day, dayIdx) => {
+                const isAvailable =
+                  day.slots.find((slot) => slot.time === time)?.available ??
+                  false;
+                return (
+                  <td key={day.day} className="p-1">
+                    <div
+                      title={
+                        isAvailable
+                          ? "Double-click to mark unavailable"
+                          : "Double-click to mark available"
+                      }
+                      onDoubleClick={() => onSlotToggle(dayIdx, time)}
+                      className={`h-10 rounded cursor-pointer transition-colors duration-200 ${
+                        isAvailable
+                          ? "bg-green-500 hover:bg-green-600"
+                          : "bg-gray-200 hover:bg-gray-300"
+                      }`}
+                    />
+                  </td>
+                );
+              })}
+            </tr>
           ))}
-        </div>
-
-        {/* Days Columns */}
-        {data?.map((day, dayIdx) => (
-          <div key={dayIdx} className="border-l last:border-r">
-            <div className="h-12 bg-gray-100 flex items-center justify-center text-xs font-semibold sm:w-20 md:w-32 lg:w-40">
-              {day.day}
-            </div>
-            {allTimes.map((time, timeIdx) => {
-              const isAvailable = day.slots.some(
-                (slot) => slot.time === time && slot.available
-              );
-
-              return (
-                <div
-                  key={timeIdx}
-                  className={`h-12 ${
-                    isAvailable ? "bg-green-400" : "bg-gray-200"
-                  }`}
-                  onClick={() => onSlotToggle(dayIdx, time)}
-                ></div>
-              );
-            })}
-          </div>
-        ))}
-      </div>
+        </tbody>
+      </table>
     </div>
   );
 };

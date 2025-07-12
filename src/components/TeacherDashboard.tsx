@@ -24,7 +24,7 @@ const tabs = [
 ];
 
 export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
-  const [teacherData, setTeacherData] = useState(teacher);
+  const [teacherData, setTeacherData] = useState<TeacherInfo>(teacher);
   const [activeTab, setActiveTab] = useState("Availability");
 
   const [privateQualifications, setPrivateQualifications] = useState([
@@ -42,17 +42,24 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
   ]);
 
   const handleSlotToggle = (dayIndex: number, timeSlot: string) => {
-    setTeacherData((prevTeacherData) => {
-      const updatedAvailability = [...prevTeacherData.availability];
-      const day = updatedAvailability[dayIndex];
-      const slotIndex = day.slots.findIndex((slot) => slot.time === timeSlot);
+    setTeacherData((prev) => {
+      const updated = [...prev.availability];
+      const day = { ...updated[dayIndex] };
+
+      const slotIndex = day.slots.findIndex((s) => s.time === timeSlot);
       if (slotIndex !== -1) {
-        day.slots[slotIndex].available = !day.slots[slotIndex].available;
+        day.slots = [...day.slots];
+        day.slots[slotIndex] = {
+          ...day.slots[slotIndex],
+          available: !day.slots[slotIndex].available,
+        };
       } else {
-        day.slots.push({ time: timeSlot, available: true });
+        day.slots = [...day.slots, { time: timeSlot, available: true }];
       }
 
-      return { ...prevTeacherData, availability: updatedAvailability };
+      updated[dayIndex] = day;
+
+      return { ...prev, availability: updated };
     });
   };
 
@@ -63,11 +70,12 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
     }
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem("teacherDetails", JSON.stringify(teacherData));
+  }, [teacherData.availability]);
+
   const handleSaveDetails = (updated: Partial<TeacherInfo>) => {
-    const updatedDetails = {
-      ...teacherData,
-      ...updated,
-    };
+    const updatedDetails = { ...teacherData, ...updated };
     setTeacherData(updatedDetails);
     localStorage.setItem("teacherDetails", JSON.stringify(updatedDetails));
   };
