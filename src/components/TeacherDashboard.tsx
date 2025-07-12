@@ -81,7 +81,12 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
     }
   }, []);
 
-  const handleSaveDetails = (updatedDetails: typeof teacherData) => {
+  const handleSaveDetails = (updated: Record<string, string>) => {
+    const updatedDetails: TeacherInfo = {
+      ...teacherData,
+      ...updated,
+    };
+
     setTeacherData(updatedDetails);
     localStorage.setItem("teacherDetails", JSON.stringify(updatedDetails));
   };
