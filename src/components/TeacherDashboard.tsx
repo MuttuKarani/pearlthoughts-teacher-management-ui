@@ -1,6 +1,4 @@
-"use client";
-import { FC } from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, FC } from "react";
 import { TeacherInfo } from "@/types/teacher";
 import { FaUser, FaCheckCircle, FaTrashAlt } from "react-icons/fa";
 import clsx from "clsx";
@@ -27,7 +25,6 @@ const tabs = [
 
 const TeacherDashboard: FC<TeacherDashboardProps> = ({ teacher }) => {
   const [activeTab, setActiveTab] = useState("Availability");
-
   const [privateQualifications, setPrivateQualifications] = useState<
     [string, string][]
   >(() => {
@@ -44,7 +41,7 @@ const TeacherDashboard: FC<TeacherDashboardProps> = ({ teacher }) => {
             ["Vocal Plus", "$28.00"],
             ["Instrument", "$28.00"],
           ];
-    } catch (e) {
+    } catch {
       return [
         ["Vocal Contemporary", "$28.00"],
         ["Vocal Core", "$28.00"],
@@ -66,22 +63,34 @@ const TeacherDashboard: FC<TeacherDashboardProps> = ({ teacher }) => {
     }
   );
 
+  // Load availability from localStorage
+  useEffect(() => {
+    const savedAvailability = localStorage.getItem("teacherAvailability");
+    if (savedAvailability) {
+      const parsedAvailability = JSON.parse(savedAvailability);
+      teacher.availability = parsedAvailability;
+    }
+  }, []);
+
+  // Update localStorage when qualifications or availability change
   useEffect(() => {
     localStorage.setItem(
       "privateQualifications",
       JSON.stringify(privateQualifications)
     );
-  }, [privateQualifications]);
-
-  useEffect(() => {
     localStorage.setItem(
       "groupQualifications",
       JSON.stringify(groupQualifications)
     );
-  }, [groupQualifications]);
+    localStorage.setItem(
+      "teacherAvailability",
+      JSON.stringify(teacher.availability)
+    );
+  }, [privateQualifications, groupQualifications, teacher.availability]);
 
   const handleSaveQualification = (index: number) => {
     const updated = [...privateQualifications];
+    updated[index] = [updated[index][0], updated[index][1]]; // Just a placeholder for saving logic
     setPrivateQualifications(updated);
     toast.success("Qualification saved!");
   };
@@ -103,6 +112,7 @@ const TeacherDashboard: FC<TeacherDashboardProps> = ({ teacher }) => {
 
   const handleSaveGroupQualification = (index: number) => {
     const updated = [...groupQualifications];
+    updated[index] = updated[index]; // Placeholder for save logic
     setGroupQualifications(updated);
     toast.success("Group qualification saved!");
   };
@@ -120,12 +130,20 @@ const TeacherDashboard: FC<TeacherDashboardProps> = ({ teacher }) => {
     const slotIndex = day.slots.findIndex((slot) => slot.time === timeSlot);
 
     if (slotIndex !== -1) {
+      // Toggle availability
       day.slots[slotIndex].available = !day.slots[slotIndex].available;
     } else {
+      // If slot does not exist, add it with available status
       day.slots.push({ time: timeSlot, available: true });
     }
 
     teacher.availability = updatedAvailability;
+
+    // Save updated availability to localStorage
+    localStorage.setItem(
+      "teacherAvailability",
+      JSON.stringify(updatedAvailability)
+    );
   };
 
   const handleSaveDetails = (updated: Partial<TeacherInfo>) => {
@@ -183,9 +201,9 @@ const TeacherDashboard: FC<TeacherDashboardProps> = ({ teacher }) => {
                       <input
                         type="text"
                         value={name}
-                        onChange={(e) => {
+                        onChange={({ target: { value } }) => {
                           const updated = [...privateQualifications];
-                          updated[index][0] = e.target.value;
+                          updated[index][0] = value;
                           setPrivateQualifications(updated);
                         }}
                         className="border p-1 w-full text-sm"
@@ -195,9 +213,9 @@ const TeacherDashboard: FC<TeacherDashboardProps> = ({ teacher }) => {
                       <input
                         type="text"
                         value={rate}
-                        onChange={(e) => {
+                        onChange={({ target: { value } }) => {
                           const updated = [...privateQualifications];
-                          updated[index][1] = e.target.value;
+                          updated[index][1] = value;
                           setPrivateQualifications(updated);
                         }}
                         className="border p-1 w-full text-sm"
@@ -242,9 +260,9 @@ const TeacherDashboard: FC<TeacherDashboardProps> = ({ teacher }) => {
                   <input
                     type="text"
                     value={qualification}
-                    onChange={(e) => {
+                    onChange={({ target: { value } }) => {
                       const updated = [...groupQualifications];
-                      updated[index] = e.target.value;
+                      updated[index] = value;
                       setGroupQualifications(updated);
                     }}
                     className="border p-1 w-full text-sm"
@@ -267,6 +285,7 @@ const TeacherDashboard: FC<TeacherDashboardProps> = ({ teacher }) => {
                 </li>
               ))}
             </ul>
+
             <div className="mt-4">
               <button
                 onClick={() =>

@@ -1,4 +1,5 @@
 import React from "react";
+import clsx from "clsx";
 
 interface AvailabilitySlot {
   time: string;
@@ -12,7 +13,7 @@ interface DayAvailability {
 
 interface AvailabilityGridProps {
   data: DayAvailability[];
-  onSlotToggle: (dayIndex: number, time: string) => void;
+  onSlotToggle: (dayIndex: number, timeSlot: string) => void;
 }
 
 const times = [
@@ -36,13 +37,13 @@ const AvailabilityGrid: React.FC<AvailabilityGridProps> = ({
 }) => {
   return (
     <div className="overflow-x-auto">
-      <table className="table-auto border-collapse w-full">
+      <table className="table-auto w-full border-collapse">
         <thead>
           <tr>
             <th className="p-2 text-left">Time</th>
             {data.map((day) => (
               <th key={day.day} className="p-2 text-left">
-                {day.day}
+                <span className="font-semibold">{day.day}</span>
               </th>
             ))}
           </tr>
@@ -51,25 +52,25 @@ const AvailabilityGrid: React.FC<AvailabilityGridProps> = ({
           {times.map((time) => (
             <tr key={time}>
               <td className="p-2 text-sm text-gray-600">{time}</td>
-              {data.map((day, dayIdx) => {
-                const isAvailable =
-                  day.slots.find((slot) => slot.time === time)?.available ??
-                  false;
+              {data.map((day, dayIndex) => {
+                // Find the slot for the current day and time
+                const slot = day.slots.find((slot) => slot.time === time);
+                const isAvailable = slot ? slot.available : false;
+
                 return (
                   <td key={day.day} className="p-1">
-                    <div
-                      title={
+                    <button
+                      onClick={() => onSlotToggle(dayIndex, time)} // Toggle availability on click
+                      className={clsx(
+                        "w-full h-10 text-sm font-medium rounded-md transition-colors duration-200",
                         isAvailable
-                          ? "Double-click to mark unavailable"
-                          : "Double-click to mark available"
-                      }
-                      onDoubleClick={() => onSlotToggle(dayIdx, time)}
-                      className={`h-10 rounded cursor-pointer transition-colors duration-200 ${
-                        isAvailable
-                          ? "bg-green-500 hover:bg-green-600"
-                          : "bg-gray-200 hover:bg-gray-300"
-                      }`}
-                    />
+                          ? "bg-green-500 text-white hover:bg-green-600" // Available
+                          : "bg-gray-300 text-gray-500 hover:bg-gray-400" // Unavailable
+                      )}
+                    >
+                      {isAvailable ? "Available" : "Unavailable"}{" "}
+                      {/* Toggle text */}
+                    </button>
                   </td>
                 );
               })}
@@ -80,5 +81,4 @@ const AvailabilityGrid: React.FC<AvailabilityGridProps> = ({
     </div>
   );
 };
-
 export default AvailabilityGrid;

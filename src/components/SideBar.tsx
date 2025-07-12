@@ -18,17 +18,13 @@ const teachers = [
 function NavItem({
   icon,
   label,
-  onClick,
 }: {
   icon: React.ReactNode;
   label: string;
-  onClick?: () => void;
+  to?: string;
 }) {
   return (
-    <div
-      className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-700 cursor-pointer"
-      onClick={onClick}
-    >
+    <div className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-700 cursor-pointer">
       <span className="text-lg">{icon}</span>
       <span>{label}</span>
     </div>
@@ -37,14 +33,9 @@ function NavItem({
 
 export default function SideBar({ isOpen }: { isOpen: boolean }) {
   const [isTeachersOpen, setIsTeachersOpen] = useState(false);
-  const [setActiveSection] = useState("dashboard");
 
   const handleTeacherToggle = () => {
     setIsTeachersOpen((prev) => !prev);
-  };
-
-  const handleSectionChange = (section: string) => {
-    setActiveSection(section);
   };
 
   return (
@@ -63,29 +54,20 @@ export default function SideBar({ isOpen }: { isOpen: boolean }) {
 
       {/* Navigation Section */}
       <nav className="flex flex-col gap-2 text-sm px-2 py-4 overflow-y-auto">
-        <NavItem
-          icon={<MdDashboard />}
-          label="Dashboard"
-          onClick={() => handleSectionChange("dashboard")}
-        />
+        <Link href="/">
+          <NavItem icon={<MdDashboard />} label="Dashboard" />
+        </Link>
+
         {isTeachersOpen && (
           <div className="flex flex-col pl-4">
             {teachers.map((teacher) => (
               <Link key={teacher.id} href={`/teachers/${teacher.id}`}>
-                <NavItem
-                  icon={<FaChalkboardTeacher />}
-                  label={teacher.name}
-                  onClick={() => handleSectionChange("teacherDashboard")}
-                />
+                <NavItem icon={<FaChalkboardTeacher />} label={teacher.name} />
               </Link>
             ))}
           </div>
         )}
-        <NavItem
-          icon={<FaChalkboardTeacher />}
-          label="Teachers"
-          onClick={() => handleSectionChange("teachers")}
-        />
+        <NavItem icon={<FaChalkboardTeacher />} label="Teachers" />
         <NavItem icon={<FaUsers />} label="Students" />
         <NavItem icon={<FaBook />} label="Courses" />
         <NavItem icon={<FaClock />} label="Schedules" />
