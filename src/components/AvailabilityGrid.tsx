@@ -34,9 +34,9 @@ const AvailabilityGrid = ({ data, onSlotToggle }: AvailabilityGridProps) => {
   }
 
   return (
-    <div className="overflow-x-auto w-full max-w-[800px] md:max-w-[1200px] shadow-sm bg-white">
+    <div className="overflow-x-auto w-full max-w-[700px] md:max-w-[900px] shadow-sm bg-white">
       {/* Grid layout */}
-      <div className="inline-grid grid-cols-[80px_repeat(7,_1fr)] sm:grid-cols-[80px_repeat(7,_1fr)] md:grid-cols-[120px_repeat(7,_1fr)] lg:grid-cols-[140px_repeat(7,_1fr)] text-xs gap-0">
+      <div className="inline-grid grid-cols-[60px_repeat(7,_1fr)] sm:grid-cols-[60px_repeat(7,_1fr)] md:grid-cols-[60px_repeat(7,_1fr)] lg:grid-cols-[60px_repeat(7,_1fr)] text-xs gap-0">
         {/* Time Column */}
         <div className="sticky left-0 bg-white z-10 border-r">
           <div className="h-12 border-b"></div>

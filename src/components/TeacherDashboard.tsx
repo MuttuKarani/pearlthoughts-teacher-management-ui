@@ -4,7 +4,7 @@ import { TeacherInfo } from "@/types/teacher";
 import InfoCard from "./InfoCard";
 import ContactInfo from "./ContactInfo";
 import AvailabilityGrid from "./AvailabilityGrid";
-import { FaUser, FaSearch } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 import clsx from "clsx";
 
 interface TeacherDashboardProps {
@@ -26,7 +26,6 @@ const tabs = [
 export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
   const [teacherData, setTeacherData] = useState(teacher);
   const [activeTab, setActiveTab] = useState("Availability");
-  const [searchQuery, setSearchQuery] = useState("");
 
   const [privateQualifications, setPrivateQualifications] = useState([
     ["Vocal Contemporary", "$28.00"],
@@ -41,11 +40,6 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
     "Vocal Ensemble",
     "Musical Theatre Group",
   ]);
-
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const query = event.target.value;
-    setSearchQuery(query);
-  };
 
   const handleSlotToggle = (dayIndex: number, timeSlot: string) => {
     setTeacherData((prevTeacherData) => {
@@ -98,18 +92,6 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
           <span>{teacherData.name}</span>
           <FaUser className="ml-2 text-blue-600" />
         </h2>
-
-        {/* Search */}
-        <div className="relative flex items-center">
-          <input
-            type="text"
-            placeholder="Search teachers..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="p-2 pl-10 rounded-lg border border-gray-300 focus:outline-none"
-          />
-          <FaSearch className="absolute left-3 text-gray-400" />
-        </div>
       </div>
 
       {/* Grid Layout */}
