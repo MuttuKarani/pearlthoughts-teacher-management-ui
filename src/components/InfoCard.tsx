@@ -16,7 +16,7 @@ type Props = {
     type?: "text" | "email" | "tel";
     value: string;
   }[];
-  onSave: (updated: TeacherInfo) => void;
+  onSave?: (updated: Partial<TeacherInfo>) => void;
 };
 
 export default function InfoCard({
