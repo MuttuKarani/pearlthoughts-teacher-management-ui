@@ -1,11 +1,11 @@
-"use client";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, FC } from "react";
 import { TeacherInfo } from "@/types/teacher";
+import { FaUser, FaCheckCircle, FaTrashAlt } from "react-icons/fa";
+import clsx from "clsx";
+import { toast } from "sonner";
 import InfoCard from "./InfoCard";
 import ContactInfo from "./ContactInfo";
 import AvailabilityGrid from "./AvailabilityGrid";
-import { FaUser } from "react-icons/fa";
-import clsx from "clsx";
 
 interface TeacherDashboardProps {
   teacher: TeacherInfo;
@@ -23,64 +23,131 @@ const tabs = [
   "History",
 ];
 
-export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
-  const [teacherData, setTeacherData] = useState(teacher);
+const TeacherDashboard: FC<TeacherDashboardProps> = ({ teacher }) => {
   const [activeTab, setActiveTab] = useState("Availability");
+  const [privateQualifications, setPrivateQualifications] = useState<
+    [string, string][]
+  >(() => {
+    const savedQualifications = localStorage.getItem("privateQualifications");
+    try {
+      const parsed = savedQualifications ? JSON.parse(savedQualifications) : [];
+      return Array.isArray(parsed) &&
+        parsed.every((item) => Array.isArray(item) && item.length === 2)
+        ? parsed
+        : [
+            ["Vocal Contemporary", "$28.00"],
+            ["Vocal Core", "$28.00"],
+            ["Vocal Hybrid", "$28.00"],
+            ["Vocal Plus", "$28.00"],
+            ["Instrument", "$28.00"],
+          ];
+    } catch {
+      return [
+        ["Vocal Contemporary", "$28.00"],
+        ["Vocal Core", "$28.00"],
+        ["Vocal Hybrid", "$28.00"],
+        ["Vocal Plus", "$28.00"],
+        ["Instrument", "$28.00"],
+      ];
+    }
+  });
 
-  const [privateQualifications, setPrivateQualifications] = useState([
-    ["Vocal Contemporary", "$28.00"],
-    ["Vocal Core", "$28.00"],
-    ["Vocal Hybrid", "$28.00"],
-    ["Vocal Plus", "$28.00"],
-    ["Instrument", "$28.00"],
-  ]);
+  const [groupQualifications, setGroupQualifications] = useState<string[]>(
+    () => {
+      const savedGroupQualifications = localStorage.getItem(
+        "groupQualifications"
+      );
+      return savedGroupQualifications
+        ? JSON.parse(savedGroupQualifications)
+        : ["Group Singing 101", "Vocal Ensemble", "Musical Theatre Group"];
+    }
+  );
 
-  const [groupQualifications, setGroupQualifications] = useState([
-    "Group Singing 101",
-    "Vocal Ensemble",
-    "Musical Theatre Group",
-  ]);
-
-  const handleSlotToggle = (dayIndex: number, timeSlot: string) => {
-    setTeacherData((prevTeacherData) => {
-      const updatedAvailability = [...prevTeacherData.availability];
-      const day = updatedAvailability[dayIndex];
-      const slotIndex = day.slots.findIndex((slot) => slot.time === timeSlot);
-      if (slotIndex !== -1) {
-        day.slots[slotIndex].available = !day.slots[slotIndex].available;
-      } else {
-        day.slots.push({ time: timeSlot, available: true });
-      }
-
-      return { ...prevTeacherData, availability: updatedAvailability };
-    });
-  };
-
+  // Load availability from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("teacherDetails");
-    if (stored) {
-      setTeacherData(JSON.parse(stored));
+    const savedAvailability = localStorage.getItem("teacherAvailability");
+    if (savedAvailability) {
+      const parsedAvailability = JSON.parse(savedAvailability);
+      teacher.availability = parsedAvailability;
     }
   }, []);
 
-  const handleSaveDetails = (updated: Partial<TeacherInfo>) => {
-    const updatedDetails = {
-      ...teacherData,
-      ...updated,
-    };
-    setTeacherData(updatedDetails);
-    localStorage.setItem("teacherDetails", JSON.stringify(updatedDetails));
+  // Update localStorage when qualifications or availability change
+  useEffect(() => {
+    localStorage.setItem(
+      "privateQualifications",
+      JSON.stringify(privateQualifications)
+    );
+    localStorage.setItem(
+      "groupQualifications",
+      JSON.stringify(groupQualifications)
+    );
+    localStorage.setItem(
+      "teacherAvailability",
+      JSON.stringify(teacher.availability)
+    );
+  }, [privateQualifications, groupQualifications, teacher.availability]);
+
+  const handleSaveQualification = (index: number) => {
+    const updated = [...privateQualifications];
+    updated[index] = [updated[index][0], updated[index][1]]; // Just a placeholder for saving logic
+    setPrivateQualifications(updated);
+    toast.success("Qualification saved!");
   };
 
-  const handleAddPrivateQualification = (
-    qualification: string,
-    rate: string
-  ) => {
-    setPrivateQualifications((prev) => [...prev, [qualification, rate]]);
+  const handleAddNewQualification = (name: string, rate: string) => {
+    setPrivateQualifications((prev) => [...prev, [name, rate]]);
+  };
+
+  const handleDeletePrivateQualification = (index: number) => {
+    const updated = [...privateQualifications];
+    updated.splice(index, 1);
+    setPrivateQualifications(updated);
+    toast.success("Qualification deleted!");
   };
 
   const handleAddGroupQualification = (qualification: string) => {
     setGroupQualifications((prev) => [...prev, qualification]);
+  };
+
+  const handleSaveGroupQualification = (index: number) => {
+    const updated = [...groupQualifications];
+    updated[index] = updated[index]; // Placeholder for save logic
+    setGroupQualifications(updated);
+    toast.success("Group qualification saved!");
+  };
+
+  const handleDeleteGroupQualification = (index: number) => {
+    const updated = [...groupQualifications];
+    updated.splice(index, 1);
+    setGroupQualifications(updated);
+    toast.success("Group qualification deleted!");
+  };
+
+  const handleSlotToggle = (dayIndex: number, timeSlot: string) => {
+    const updatedAvailability = [...teacher.availability];
+    const day = updatedAvailability[dayIndex];
+    const slotIndex = day.slots.findIndex((slot) => slot.time === timeSlot);
+
+    if (slotIndex !== -1) {
+      // Toggle availability
+      day.slots[slotIndex].available = !day.slots[slotIndex].available;
+    } else {
+      // If slot does not exist, add it with available status
+      day.slots.push({ time: timeSlot, available: true });
+    }
+
+    teacher.availability = updatedAvailability;
+
+    // Save updated availability to localStorage
+    localStorage.setItem(
+      "teacherAvailability",
+      JSON.stringify(updatedAvailability)
+    );
+  };
+
+  const handleSaveDetails = (updated: Partial<TeacherInfo>) => {
+    Object.assign(teacher, updated);
   };
 
   return (
@@ -88,8 +155,13 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-sm text-gray-600 pt-4 flex items-center">
-          <span className="text-blue-600">Teachers</span> /{" "}
-          <span>{teacherData.name}</span>
+          <button
+            className="text-blue-600 hover:underline mr-2"
+            onClick={() => setActiveTab("Availability")}
+          >
+            Back to Teachers
+          </button>
+          / <span className="ml-2">{teacher.name}</span>
           <FaUser className="ml-2 text-blue-600" />
         </h2>
       </div>
@@ -101,30 +173,69 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
             title="Details"
             editable
             fields={[
-              { label: "Name", key: "name", value: teacherData.name },
-              { label: "Role", key: "role", value: teacherData.role },
+              { label: "Name", key: "name", value: teacher.name },
+              { label: "Role", key: "role", value: teacher.role },
               {
                 label: "Birth Date",
                 key: "birthDate",
-                value: teacherData.birthDate,
+                value: teacher.birthDate,
               },
             ]}
             onSave={handleSaveDetails}
           />
 
+          {/* Private Qualifications Section */}
           <InfoCard title="Private Qualifications" addable>
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left border-b">
                   <th>Name</th>
                   <th>Rate ($/hr)</th>
+                  <th className="w-24">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {privateQualifications.map(([name, rate]) => (
-                  <tr key={name}>
-                    <td>{name}</td>
-                    <td>{rate}</td>
+                {privateQualifications.map(([name, rate], index) => (
+                  <tr key={index}>
+                    <td>
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={({ target: { value } }) => {
+                          const updated = [...privateQualifications];
+                          updated[index][0] = value;
+                          setPrivateQualifications(updated);
+                        }}
+                        className="border p-1 w-full text-sm"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={rate}
+                        onChange={({ target: { value } }) => {
+                          const updated = [...privateQualifications];
+                          updated[index][1] = value;
+                          setPrivateQualifications(updated);
+                        }}
+                        className="border p-1 w-full text-sm"
+                      />
+                    </td>
+                    <td className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleSaveQualification(index)}
+                        className="text-green-500 hover:text-green-700 text-xs"
+                      >
+                        <FaCheckCircle className="text-green-500" />
+                      </button>
+
+                      <button
+                        onClick={() => handleDeletePrivateQualification(index)}
+                        className="text-red-500 hover:text-red-700 text-xs"
+                      >
+                        <FaTrashAlt className="text-red-500" />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -132,7 +243,7 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
             <div className="mt-4">
               <button
                 onClick={() =>
-                  handleAddPrivateQualification("New Qualification", "$30.00")
+                  handleAddNewQualification("New Qualification", "$30.00")
                 }
                 className="text-blue-500 hover:text-blue-700"
               >
@@ -141,14 +252,40 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
             </div>
           </InfoCard>
 
+          {/* Group Qualifications Section */}
           <InfoCard title="Group Qualifications" addable>
-            <ul className="list-disc pl-4">
+            <ul className="space-y-2">
               {groupQualifications.map((qualification, index) => (
-                <li key={index} className="text-sm text-gray-700">
-                  {qualification}
+                <li key={index} className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={qualification}
+                    onChange={({ target: { value } }) => {
+                      const updated = [...groupQualifications];
+                      updated[index] = value;
+                      setGroupQualifications(updated);
+                    }}
+                    className="border p-1 w-full text-sm"
+                  />
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleSaveGroupQualification(index)}
+                      className="text-green-500 hover:text-green-700 text-xs"
+                    >
+                      <FaCheckCircle className="text-green-500" />
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteGroupQualification(index)}
+                      className="text-red-500 hover:text-red-700 text-xs"
+                    >
+                      <FaTrashAlt className="text-red-500" />
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
+
             <div className="mt-4">
               <button
                 onClick={() =>
@@ -156,24 +293,16 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
                 }
                 className="text-blue-500 hover:text-blue-700"
               >
-                + Add Group Qualification
+                + Add Qualification
               </button>
             </div>
           </InfoCard>
         </div>
 
         <div className="space-y-4">
-          <ContactInfo
-            type="Email"
-            label="Work"
-            value="alyniaallan@example.com"
-          />
-          <ContactInfo type="Phone" label="Home" value="(416) 648-9057" />
-          <ContactInfo
-            type="Addresses"
-            label="Home"
-            value={`56 Odosardo Di Santo Cir\nNorth York, Ontario\nCanada`}
-          />
+          <ContactInfo type="Email" label="Work" value={teacher.email} />
+          <ContactInfo type="Phone" label="Home" value={teacher.phone} />
+          <ContactInfo type="Addresses" label="Home" value={teacher.address} />
         </div>
       </div>
 
@@ -200,7 +329,7 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
       <div>
         {activeTab === "Availability" ? (
           <AvailabilityGrid
-            data={teacherData.availability}
+            data={teacher.availability}
             onSlotToggle={handleSlotToggle}
           />
         ) : (
@@ -211,4 +340,6 @@ export default function TeacherDashboard({ teacher }: TeacherDashboardProps) {
       </div>
     </div>
   );
-}
+};
+
+export default TeacherDashboard;
