@@ -25,6 +25,7 @@ const tabs = [
 
 const TeacherDashboard: FC<TeacherDashboardProps> = ({ teacher }) => {
   const [activeTab, setActiveTab] = useState("Availability");
+  const [availability, setAvailability] = useState(teacher.availability);
   const [privateQualifications, setPrivateQualifications] = useState<
     [string, string][]
   >(() => {
@@ -124,26 +125,34 @@ const TeacherDashboard: FC<TeacherDashboardProps> = ({ teacher }) => {
     toast.success("Group qualification deleted!");
   };
 
+  useEffect(() => {
+    // Initialize state with teacher availability from localStorage
+    const savedAvailability = localStorage.getItem("teacherAvailability");
+    if (savedAvailability) {
+      const parsedAvailability = JSON.parse(savedAvailability);
+      setAvailability(parsedAvailability);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Save updated availability to localStorage when it changes
+    localStorage.setItem("teacherAvailability", JSON.stringify(availability));
+  }, [availability]);
+
   const handleSlotToggle = (dayIndex: number, timeSlot: string) => {
-    const updatedAvailability = [...teacher.availability];
-    const day = updatedAvailability[dayIndex];
-    const slotIndex = day.slots.findIndex((slot) => slot.time === timeSlot);
+    const updatedAvailability = [...availability]; // Copy the current availability
+    const day = updatedAvailability[dayIndex]; // Get the specific day
+    const slotIndex = day.slots.findIndex((slot) => slot.time === timeSlot); // Find the slot for the given time
 
     if (slotIndex !== -1) {
-      // Toggle availability
+      // If the slot exists, toggle its availability
       day.slots[slotIndex].available = !day.slots[slotIndex].available;
     } else {
-      // If slot does not exist, add it with available status
+      // If the slot doesn't exist, add it as available
       day.slots.push({ time: timeSlot, available: true });
     }
 
-    teacher.availability = updatedAvailability;
-
-    // Save updated availability to localStorage
-    localStorage.setItem(
-      "teacherAvailability",
-      JSON.stringify(updatedAvailability)
-    );
+    setAvailability(updatedAvailability); // Update the state, which should trigger a re-render
   };
 
   const handleSaveDetails = (updated: Partial<TeacherInfo>) => {
@@ -312,12 +321,12 @@ const TeacherDashboard: FC<TeacherDashboardProps> = ({ teacher }) => {
           {tabs.map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => setActiveTab(tab)} // Switch tabs
               className={clsx(
-                "py-3 px-2 border-b-2 transition-colors duration-200",
+                "w-full h-10 text-sm font-medium rounded-md transition-colors duration-200",
                 activeTab === tab
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-blue-500"
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-blue-600 hover:bg-blue-100"
               )}
             >
               {tab}
@@ -329,7 +338,7 @@ const TeacherDashboard: FC<TeacherDashboardProps> = ({ teacher }) => {
       <div>
         {activeTab === "Availability" ? (
           <AvailabilityGrid
-            data={teacher.availability}
+            data={availability} // This is where we pass the updated 'availability'
             onSlotToggle={handleSlotToggle}
           />
         ) : (
